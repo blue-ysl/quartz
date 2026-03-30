@@ -1,3 +1,6 @@
+---
+title: My Article
+---
 
 # Test Header
 
@@ -11,3 +14,4 @@ SQL snippet
 # Test Header
 
 ---
+
