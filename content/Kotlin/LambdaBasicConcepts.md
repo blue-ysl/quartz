@@ -109,6 +109,9 @@ val evenNumsVerbose = nums.filter { num: Int -> num % 2 == 0 }
 ```
 
 
+## 나가며..
 
+Kotlin에서 lambda의 개념과 사용 방법에 대해서 이상 알아보았습니다.
 
----
+다른 연관 포스트도 있으니 참고 바랍니다..
+- [Function With Receiver + 사용 예시 (Gradle)](FunctionWithReceiverAndUseInGradle.md)
