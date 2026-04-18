@@ -1,10 +1,11 @@
 ---
 aliases:
-title: "[Kotlin] Lambda 기본 개념과 문법"
+title: Lambda 기본 개념과 문법
 ---
-`마지막 수정 일시: 2026년 4월 18일 토요일, 14시 (KST)`
+`마지막 수정 일시: 2026년 4월 18일 토요일, 15시 (KST)`
 
-이 글에서는 Kotlin의 Lambda와 관련된 문법에 대해 알아봅니다. 어려운 내용은 아니지만, C나 Java 같은 전통적 언어를 사용하다가 Kotlin을 처음 보게 된 분들을 독자로 상정하여 작성되었습니다.
+이 글에서는 Kotlin의 Lambda와 관련된 문법에 대해 알아봅니다.
+어려운 내용은 아니지만, C, Java 같은 언어를 쓰다 Kotlin을 처음 본 분을 독자로 상정하고 작성했습니다.
 
 ## Lambda란?
 
@@ -29,7 +30,9 @@ println(mySumFn(3,5))
 
 ## Lambda를 함수 파라미터로 전달하기
 
-위 예에서 `println` 함수에 전달된 것은 더하기 람다의 반환 값입니다. 하지만 **람다 자체**를 함수 인자로 넘겨줄 수도 있지 않을까요? 이는 다음과 같이 작성하면 됩니다.
+위 예에서 `println` 함수에 전달된 것은 더하기 람다의 반환 값입니다.
+하지만 **람다 자체**를 함수 인자로 넘겨줄 수도 있지 않을까요?
+이는 다음과 같이 작성하면 됩니다.
 
 ```kotlin
 fun multiplyNumber(number: Int, multiple: Int, execFun: (Int, Int) -> Int) {  
@@ -42,7 +45,8 @@ multiplyNumber(3, 5, { a, b -> a * b}) // --> Result: 15
 
 위 예에서 함수는 `execFun`이라는 이름으로  `Int 인자 두 개를 받아 Int 하나를 반환하는 함수` 타입의 값을 받습니다. `multiplyNumber`에 `Int` 타입 `a`, `b`를 받아 곱한 값을 반환하는 함수를 전달하고 있지요.
 
-참고로 함수에 전달하는 마지막 인자가 람다일 경우, 이를 괄호 밖으로 빼는 것도 허용됩니다. 중요한 건 아니지만 이러한 형식의 구문을  '*trailing lambda*'라고도 합니다.
+참고로 함수에 전달하는 마지막 인자가 람다일 경우, 이를 괄호 밖으로 빼는 것도 허용됩니다.
+중요한 건 아니지만 이러한 형식의 구문을  '*trailing lambda*'라고도 합니다.
 
 ```Kotlin
 multiplyNumber(3, 5, { a, b -> a * b})
@@ -87,7 +91,7 @@ val nums = listOf(1, 2, 3, 4, 5, 6)
 val evenNums = nums.filter { it % 2 == 0 }  
 ```
 
-`filter` 메서드를 보면 다음과 같습니다. `predicate`라는 이름으로 람다 인자를 받는데, 이 람다의 인자는 `T` 하나 뿐입니다.
+`filter` 함수는 `predicate`라는 이름으로 람다 인자를 받는데, 이 람다의 인자는 `T` 하나 뿐입니다.
 
 ```kotlin
 public inline fun <T> Iterable<T>.filter(predicate: (T) -> Boolean): List<T> {  
@@ -95,12 +99,16 @@ public inline fun <T> Iterable<T>.filter(predicate: (T) -> Boolean): List<T> {
 }
 ```
 
-람다의 인자가 하나일 때, `it`라는 키워드는 바로 그 인자를 가리키는 것임을 약속한 것이지요. 아래 예에서 세 줄 모두 똑같은 역할을 합니다. 
+람다의 인자가 하나일 때, `it`라는 키워드는 바로 그 인자를 가리키는 것임을 약속한 것이지요.
+아래 예에서 세 줄 모두 똑같은 역할을 합니다. 
 
 ```kotlin
 val evenNums = nums.filter { it % 2 == 0 }  
 val evenNumsSimpler = nums.filter { num -> num % 2 == 0 }  
 val evenNumsVerbose = nums.filter { num: Int -> num % 2 == 0 }
 ```
+
+
+
 
 ---
