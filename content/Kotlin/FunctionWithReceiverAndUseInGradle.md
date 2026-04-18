@@ -65,8 +65,7 @@ myNotObj.sumFunc(3) // error
 ## 사용 예시 (Gradle)
 
 의존성 관리 도구인 Gradle에서도 function with receiver가 활용되는 사례를 확인할 수 있습니다.
-
-Gradle 빌드 스크립트를 작성할 때 이런 블록을 한 번은 보셨을 겁니다..
+Gradle 빌드 스크립트를 작성할 때 이런 블록을 한 번은 보셨을 겁니다.
 
 ```kotlin
 // 파일: build.gradle.kts
@@ -76,7 +75,7 @@ dependencies {
 ```
 
 사실 이 `dependencies`는 Gradle API `Project` 클래스의 확장 함수입니다.
-[Gradle GitHub: ProjectExtensions.kt 코드](https://github.com/gradle/gradle/blob/master/platforms/core-configuration/kotlin-dsl/src/main/kotlin/org/gradle/kotlin/dsl/ProjectExtensions.kt)
+- [Gradle GitHub: ProjectExtensions.kt 코드](https://github.com/gradle/gradle/blob/master/platforms/core-configuration/kotlin-dsl/src/main/kotlin/org/gradle/kotlin/dsl/ProjectExtensions.kt)
 
 시그니처는 이렇게 생겼습니다.
 
@@ -93,6 +92,8 @@ fun Project.dependencies(configuration: DependencyHandlerScope.() -> Unit) =
  
 ## 나가며..
 
-C나 Java 같은 전통적 언어를 주로 썼던 분이라면 Kotlin의 function with receiver 문법이 다소 생소하실 수도 있을 듯 합니다. 하지만 특정 타입의 개체에 대해서 실행하는 함수를 정의한다고 생각하면 그렇게 어렵지는 않으리라 생각합니다. 
+C나 Java 같은 전통적 언어를 주로 썼던 분이라면 Kotlin의 function with receiver 문법이 다소 생소하실 수도 있을 듯 합니다.
+
+하지만 특정 타입의 개체에 대해서 실행하는 함수를 정의한다고 생각하면 그렇게 어렵지는 않으리라 생각합니다. 
 
 function with receiver를 실질적으로 유용하게 활용할 수 있는 사용례에 대해서는 추후 여건이 허락하면 업데이트 하겠습니다.
