@@ -2,4 +2,28 @@
 aliases:
 title: buildSrc를 통한 멀티 프로젝트 공통 빌드로직 관리
 ---
-https://docs.gradle.org/current/userguide/sharing_build_logic_between_subprojects.html
+`마지막 수정 일시: 2026년 4월 25일 토요일, 16시 (KST)`
+
+## 공통 로직이 필요할 때
+
+여러 프로젝트에 대한 `build.gradle.kts` 파일을 작성하다 보면 중복되는 부분이 생깁니다. 예를 들어 jar 파일을 생성하거나 manifest 파일을 쓰는 작업은 프로젝트별로 큰 차이가 없을 것입니다. 같은 task 로직을 프로젝트마다 추가해야 한다면 귀찮은 것은 물론, 변경이 있을 때 해야 할 일도 많아집니다. 
+
+유틸리티 함수를 만들어서 여러 프로젝트에서 쓰고 싶은 경우도 있을 것입니다. 빌드 과정에서 생기는 에러를 로그로 남기는 함수라던가, Git 관련된 함수, 간단한 계산을 수행하는 함수 등, 여러 프로젝트에서 공통으로 쓸만한 함수를 어느 한 곳에 구현해 놓으면 유용하겠지요?
+
+이러한 공통 로직이 필요할 때, `buildSrc` 디렉토리를 사용해 보는 것은 어떨까요?
+- [Gradle 공식 가이드 링크](https://docs.gradle.org/current/userguide/sharing_build_logic_between_subprojects.html)
+
+## `buildSrc`: 공통 로직을 위한 특별한 디렉토리 이름
+
+- `buildSrc` 디렉토리에 대한 설명
+- `buildSrc` 디렉토리와 관련된 빌드 과정
+
+## 커스텀 플러그인의 구현과 적용
+
+
+## 공통 함수의 구현과 사용
+
+
+## 나가며
+
+
