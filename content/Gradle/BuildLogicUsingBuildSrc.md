@@ -2,7 +2,7 @@
 aliases:
 title: buildSrc를 통한 멀티 프로젝트 공통 빌드로직 관리
 ---
-`마지막 수정 일시: 2026년 4월 26일 토요일, 14시 (KST)`
+`마지막 수정 일시: 2026년 4월 29일 수요일, 01시 (KST)`
 
 ## 공통 로직이 필요할 때
 
@@ -52,7 +52,7 @@ repositories {
 
 > 제 로컬 환경에서의 테스트 결과, `buildSrc`에 Java 소스코드만 있으면 `build.gradle.kts` 파일에 아무것도 작성하지 않아도 해당 로직의 컴파일과 다른 프로젝트 내 사용이 가능했습니다.
 
-## 공통 함수의 구현과 사용
+## 실습: 공통 함수의 구현과 사용
 
 `buildSrc` 폴더에 공통 함수를 구현하고 사용하는 예시를 보여 드리겠습니다. 현재 일자를 String 타입으로 반환하는 Java 함수를 추가해 보겠습니다.
 
@@ -223,12 +223,163 @@ Configuration cache entry stored.
 
 `buildSrc`에서 만든 함수들이 빌드스크립트에서 호출되어 동작한 것을 확인할 수 있습니다.
 
-## 커스텀 플러그인의 구현과 적용
+## 실습: 컨벤션 플러그인의 구현과 적용
 
+다음으로는 `buildSrc`를 이용해서 컨벤션 플러그인을 만들어 보겠습니다. 
 
+> 컨벤션 플러그인(convention plugin)이란, 다른 프로젝트에서 마치 플러그인처럼 가져다 쓸 수 있는 빌드스크립트로 생각해 주셔도 무방합니다. 
 
+Java 프로젝트에 적용될 수 있는 간단한 플러그인을 만들어 보겠습니다.
+
+> **컨벤션 플러그인의 확장자**는 `gradle(.kts)`여야 한다는 점에 주의해 주세요.
+
+우선 `my-java-task-conventions.gradle.kts` 파일을 추가합니다. 이 플러그인에는 다음과 같은 내용이 정의되어 있습니다.
+- 이 플러그인을 사용하는 프로젝트는 Java 17 버전의 툴체인을 사용함.
+- 이 플러그인은 Java 플러그인의 'jar'  task를 확장하며, 각 프로젝트에 정의된 프로젝트명, 메인 클래스, 프로젝트 버전 값을 가지고 jar 파일을 작명하고 MANIFEST 파일을 작성함.
+
+```kotlin
+// my-project/buildSrc/src/main/kotlin/my-java-task-conventions.gradle.kts
+plugins {  
+    java  
+}  
+  
+repositories {  
+    mavenCentral()  
+}  
+
+// Java 버전을 정의합니다
+java {  
+    toolchain {  
+        languageVersion = JavaLanguageVersion.of(17)  
+    }  
+}  
+  
+// java 플러그인의 'jar' task 내용을 확장합니다.
+tasks.named<Jar>("jar") {  
+    // 이 플러그인을 적용하는 프로젝트의 build.gradle.kts에 정의되어 있는 값을 가져옵니다.
+    val projectJarName: String by project  
+    val mainClass: String by project  
+    val projectVersion: String by project  
+  
+    // JAR 파일의 이름을 지정합니다.
+    archiveFileName.set("${projectJarName}.jar")  
+  
+    // MANIFEST.MF 파일에 적을 내용을 정의합니다.
+    manifest {  
+        attributes("Main-Class" to mainClass)  
+        attributes("Module-Version" to projectVersion)  
+        attributes("Build-Released" to kotlinCurrentDate())  
+    }
+}
+```
+
+이제, 실제로 이 플러그인을 활용할 프로젝트가 필요하겠죠. 루트 디렉토리의 `src` 디렉토리에 Java 소스코드를 추가합니다.
+
+```java
+// my-project/src/main/java/com/blue/Main.java
+package com.blue;  
+  
+public class Main  
+{  
+    public static void main(String[] args)  
+    {  
+        System.out.println("Hello World, this is an example Gradle project!");    
+    }  
+}
+```
+
+이제 마지막으로 `my-java-task-conventions`를 프로젝트의 `build.gradle.kts`에 적용할 일만 남았는데요, 다음과 같은 내용을 추가해 주시면 됩니다.
+
+```kotlin
+// my-project/build.gradle.kts
+
+/* 프로젝트 외부에 노출할 변수를 정의합니다. 이렇게 해야 플러그인에서 해당 변수 내용을
+   참조할 수 있다고 생각해 주시면 됩니다. */
+val projectJarName by extra("myGradleProject")
+val mainClass: String by extra("com.blue.Main")
+val projectVersion: String by extra("1.2")
+
+/* 방금 만든 'my-java-task-conventions'를 적용합니다. */
+plugins {
+    id("my-java-task-conventions")
+}
+```
+
+모든 준비가 끝났으니, Gradle을 실행해 볼까요? (최초 실행 여부 등에 따라 메시지는 다를 수 있음)
+
+```
+blue@Bluebook:~/Gradle/my-project$ ./gradlew clean jar
+Calculating task graph as no cached configuration is available for tasks: clean jar
+
+BUILD SUCCESSFUL in 3s
+13 actionable tasks: 8 executed, 5 up-to-date
+Configuration cache entry stored.
+```
+
+그렇게 하면, `build/libs` 폴더에 `myGradleProject.jar` 파일이 생성된 것을 확인할 수 있고,
+
+```
+blue@Bluebook:~/Gradle/my-project$ ls -al build/libs
+total 12
+drwxr-xr-x 2 blue blue 4096 Apr 29 00:50 .
+drwxr-xr-x 7 blue blue 4096 Apr 29 00:50 ..
+-rw-r--r-- 1 blue blue  991 Apr 29 00:50 myGradleProject.jar
+```
+
+MANIFEST.MF 파일에도 우리 플러그인이 의도한대로 내용이 작성된 것을 확인할 수 있습니다.
+
+```
+blue@Bluebook:~/Gradle/my-project$ unzip -p build/libs/myGradleProject.jar META-INF/MANIFEST.MF
+Manifest-Version: 1.0
+Main-Class: com.blue.Main
+Module-Version: 1.2
+Build-Released: Kotlin date: 2026-04-29
+```
+
+> `unzip` 커맨드의 `p` 옵션(파이프 옵션)을 활용하면 파일을 풀어헤치지 않고 내용을 확인할 수 있습니다.
+
+## 컨벤션 플러그인을 활용하면 좋은 점
+
+여러 프로젝트에 공통적으로 적용할 수 있는 컨벤션 플러그인을 사용하면, 다음과 같은 이점이 있습니다.
+- 프로젝트별 빌드스크립트에 중복되어 들어가는 내용을 줄일 수 있다.
+	- 똑같은 내용의 JAR 태스트가 각 Java 프로젝트마다 있을 필요는 없겠죠?
+- 각 프로젝트가 전체 프로젝트의 규약/관습(convention)을 어기는 상황을 도구로 관리할 수 있다.
+	- MANIFEST 파일 형식, Java 버전, 의존성 버전 등
+
+아래 예시에서는 두 번째 특징에 조금 더 주목해보고 싶네요.
+
+Java 21에서 처음 소개된 `Math.clamp` 메서드를 사용하는 상황을 보겠습니다.
+코드를 아래와 같이 작성하고, 다시 `jar` 태스크를 실행하면 어떻게 될까요?
+
+```java
+package com.blue;  
+  
+public class Main  
+{  
+    public static void main(String[] args)  
+    {  
+        System.out.println("Hello World, this is an example Gradle project!");  
+        int result = Math.clamp(15, 0, 10);  
+    }  
+}
+```
+
+결과는 다음과 같습니다. `compileJava` 단계에서 실패했는데요!
+
+```
+blue@Bluebook:~/Gradle/my-project$./gradlew clean jar 
+> Task :compileJava FAILED
+...(생략)/src/main/java/com/blue/Main.java:8: error: cannot find symbol
+        int result = Math.clamp(15, 0, 10);
+```
+
+우리가 정의한 플러그인에서 Java 툴체인을 17버전으로 사용하기로 했기 때문에, 소스코드를 컴파일하는 작업인 `compileJava` 역시 17 버전을 기준으로 수행되었지만, 소스코드에 Java 17에는 없는 내용이 있어 컴파일에 실패하게 된 것입니다.
 
 
 ## 나가며
 
+`buildSrc`를 활용해서 여러 프로젝트에서 활용 가능한 공통 로직을 작성하는 방법을 알아보았습니다.
 
+특히 예시에서 본 것처럼, 컨벤션 플러그인을 이용하면 여러 프로젝트의 빌드스크립트에 중복으로 작성하는 내용을 압축할 수 있고, 다수 프로젝트에 공통적인 규약을 보다 쉽게 적용할 수 있으니 활용해 보기를 권해드립니다. 
+
+읽어주셔서 감사합니다.
